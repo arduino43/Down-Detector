@@ -12,19 +12,20 @@ traceback_install(theme="fruity")
 
 
 class DownDetector:
-    BASE_URL = "https://downdetector.com/status"
     COMPANY_PATTERN = re.compile(r"company: '(.*?)'")
     STATUS_PATTERN = re.compile(r"title'>\s*(.*?)\s*<")
     PERCENTAGE_PATTERN = re.compile(r"Chart_percentage'>\s*(\d+)%\s*<")
     NAME_PATTERN = re.compile(r"Chart_name'>\s*(.*?)\s*<")
 
-    def __init__(self, service_name):
+    def __init__(self, service_name, domain="downdetector.com"):
         self.service_name = service_name
+        self.domain = domain
+        self.base_url = f"https://{domain}/status"
         self.scraper = cloudscraper.create_scraper()
 
     def _fetch_data(self):
         response = self.scraper.get(
-            f"{self.BASE_URL}/{self.service_name}/",
+            f"{self.base_url}/{self.service_name}/",
             headers={"User-Agent": generate_user_agent()},
         )
         return response.text
@@ -52,7 +53,7 @@ class DownDetector:
 
     def _display_status(self, company, status, chart_data):
         table = Table(
-            title="(downdetector.com)",
+            title=f"({self.domain})",
             title_style="dodger_blue2",
             header_style="yellow",
         )
